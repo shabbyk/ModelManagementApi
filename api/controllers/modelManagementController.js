@@ -25,9 +25,11 @@ exports.create_a_model = async function (req, res) {
     })
     .on('file', (name, file) => {
       console.log('file Uploaded');
-      x.fileUrls.push(file.path);
+      // The port can change according to node port
+      x.fileUrls.push(`http://localhost:3900/images/${file.name}`);
     })
     .on('end', () => {
+      x.profilePic = x.fileUrls[0]; // setting the first url we can change this
       var new_model = new Model(x);
       new_model = new_model.save();
       res.send(new_model);
