@@ -1,6 +1,7 @@
 "use strict";
 
 var mongoose = require("mongoose");
+var formidable = require("formidable");
 const { Model, validate } = require("../models/modelManagementModel");
 
 exports.list_all_models = async function (req, res) {
@@ -11,7 +12,18 @@ exports.list_all_models = async function (req, res) {
 exports.create_a_model = async function (req, res) {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
-
+  // read files from request form
+  let fileUrls = [];
+  new formidable.IncomingForm().parse(req)
+    .on('fileBegin', (name, file) => {
+      file.path = `/uploads/${file.name}`;
+    })
+    .on('file', (name, file) => {
+      console.log('file Uploaded');
+      fileUrls.push(file.path);
+    });
+  
+  req.body.fileUrls = fileUrls;
   var new_model = new Model(req.body);
   new_model = await new_model.save();
 
